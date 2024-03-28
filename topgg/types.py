@@ -214,7 +214,7 @@ class BotData(DataDict[str, t.Any]):
     avatar: t.Optional[str]
     """The avatar hash of the bot."""
 
-    def_avatar: str
+    def_avatar: t.Optional[str]
     """The avatar hash of the bot's default avatar."""
 
     prefix: str

@@ -1,0 +1,9 @@
+line-length = 120
+
+[format]
+docstring-code-format = true
+docstring-code-line-length = 120
+line-ending = "lf"
+
+[lint]
+ignore = ["E722", "F401", "F403"]

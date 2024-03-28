@@ -1,6 +1,6 @@
-####################
-Models API Reference
-####################
+################
+Models reference
+################
 
 .. automodule:: topgg.types
     :members:

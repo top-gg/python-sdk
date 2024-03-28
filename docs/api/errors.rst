@@ -1,7 +1,6 @@
-####################
-Errors API Reference
-####################
+################
+Errors reference
+################
 
 .. automodule:: topgg.errors
     :members:
-    :inherited-members:

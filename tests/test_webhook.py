@@ -45,9 +45,7 @@ async def test_WebhookManager_validates_auth(
 
     try:
         for path in ("dbl", "dsl"):
-            async with aiohttp.request(
-                "POST", f"http://localhost:5000/{path}", headers=headers, json={}
-            ) as r:
+            async with aiohttp.request("POST", f"http://localhost:5000/{path}", headers=headers, json={}) as r:
                 assert r.status == result
     finally:
         await webhook_manager.close()
@@ -75,6 +73,4 @@ def test_WebhookEndpoint_type_unset(webhook_manager: WebhookManager):
         TopGGException,
         match="endpoint missing route.",
     ):
-        webhook_manager.endpoint().callback(mock.Mock()).type(
-            WebhookType.BOT
-        ).add_to_manager()
+        webhook_manager.endpoint().callback(mock.Mock()).type(WebhookType.BOT).add_to_manager()

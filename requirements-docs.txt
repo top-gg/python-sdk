@@ -1,2 +1,3 @@
+furo
 sphinx
-insegel
+sphinx-reredirects

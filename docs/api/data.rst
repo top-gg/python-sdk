@@ -1,6 +1,6 @@
-##################
-Data API Reference
-##################
+##############
+Data reference
+##############
 
 .. automodule:: topgg.data
     :members:

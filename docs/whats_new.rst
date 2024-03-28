@@ -1,12 +1,21 @@
-.. currentmodule:: topgg
-
-.. _whats_new:
-
 ##########
-What's New
+What's new
 ##########
 
 This page keeps a detailed human friendly rendering of what's new and changed in specific versions.
+
+v2.0.1
+======
+* Added Python 3.12 support (:issue:`78`)
+* Dropped Python 3.6 and 3.7 support (:issue:`75`)
+* Removed the need to manually set a ``default_bot_id`` property
+* :attr:`~.BotData.def_avatar` is now an optional string
+* :meth:`~.DBLClient.get_bots` is now deprecated
+* :meth:`~.DBLClient.get_guild_count` no longer accepts a ``bot_id`` argument
+* :meth:`~.DBLClient.get_bot_votes` no longer raises a :class:`~.ClientException` without a ``default_bot_id`` property
+* :meth:`~.DBLClient.get_bot_info` no longer raises a :class:`~.ClientException` without a ``default_bot_id`` property
+* :meth:`~.DBLClient.generate_widget` no longer raises a :class:`~.ClientException` without a ``default_bot_id`` property
+* Documentation overhaul
 
 v2.0.0a
 =======
@@ -19,15 +28,15 @@ v2.0.0a
 v1.4.0
 ======
 
-* The type of data passed to ``on_dbl_vote`` has been changed from :class:`dict` to :obj:`BotVoteData`
-* The type of data passed to ``on_dsl_vote`` has been changed from :class:`dict` to :obj:`ServerVoteData`
+* The type of data passed to ``on_dbl_vote`` has been changed from :class:`~.dict` to :obj:`BotVoteData`
+* The type of data passed to ``on_dsl_vote`` has been changed from :class:`~.dict` to :obj:`ServerVoteData`
 
 v1.3.0
 ======
 
 *  Introduced `global ratelimiter <https://docs.top.gg/resources/ratelimits/#global-ratelimit>`__ to follow Top.gg global ratelimits
 
-   *  Fixed an :exc:`AttributeError` raised by :meth:`HTTPClient.request`
+   *  Fixed an :exc:`AttributeError` raised by :meth:`~.HTTPClient.request`
 
    * `Resource-specific ratelimit <https://docs.top.gg/resources/ratelimits/#resource-specific-ratelimits>`__ is now actually resource-specific
 
@@ -35,41 +44,41 @@ v1.2.0
 ======
 
 * Introduced global ratelimiter along with bot endpoints ratelimiter
-* Follow consistency with typing in :class:`HTTPClient` and :class:`DBLClient` along with updated docstrings (:issue:`55`)
+* Follow consistency with typing in :class:`~.HTTPClient` and :class:`~.DBLClient` along with updated docstrings (:issue:`55`)
 
 v1.1.0
 ======
 
 *  Introduced `data models <models.html>`__
 
-   * :meth:`DBLClient.get_bot_votes` now returns a list of :class:`BriefUserData` objects
+   * :meth:`~.DBLClient.get_bot_votes` now returns a list of :class:`~.BriefUserData` objects
 
-   * :meth:`DBLClient.get_bot_info` now returns a :class:`BotData` object
+   * :meth:`~.DBLClient.get_bot_info` now returns a :class:`~.BotData` object
 
-   * :meth:`DBLClient.get_guild_count` now returns a :class:`BotStatsData` object
+   * :meth:`~.DBLClient.get_guild_count` now returns a :class:`~.BotStatsData` object
 
-   * :meth:`DBLClient.get_user_info` now returns a :class:`UserData` object
+   * :meth:`~.DBLClient.get_user_info` now returns a :class:`~.UserData` object
 
-* :meth:`WebhookManager.run` now returns an :class:`asyncio.Task`, meaning it can now be optionally awaited
+* :meth:`~.WebhookManager.run` now returns an :class:`~.asyncio.Task`, meaning it can now be optionally awaited
 
 v1.0.1
 ======
 
-* :attr:`WebhookManager.webserver` now instead returns :class:`aiohttp.web.Application` for ease of use
+* :attr:`~.WebhookManager.webserver` now instead returns :class:`~.aiohttp.web.Application` for ease of use
 
 v1.0.0
 ======
 
 * Renamed the module folder from ``dbl`` to ``topgg``
-* Added ``post_shard_count`` argument to :meth:`DBLClient.post_guild_count`
+* Added ``post_shard_count`` argument to :meth:`~.DBLClient.post_guild_count`
 * Autopost now supports automatic shard posting (:issue:`42`)
 *  Large webhook system rework, read the :obj:`api/webhook` section for more
 
    * Added support for server webhooks
 
-* Renamed ``DBLException`` to :class:`TopGGException`
-* Renamed ``DBLClient.get_bot_upvotes()`` to :meth:`DBLClient.get_bot_votes`
-* Added :meth:`DBLClient.generate_widget` along with the ``widgets`` section in the documentation
+* Renamed ``DBLException`` to :class:`~.TopGGException`
+* Renamed ``DBLClient.get_bot_upvotes()`` to :meth:`~.DBLClient.get_bot_votes`
+* Added :meth:`~.DBLClient.generate_widget` along with the ``widgets`` section in the documentation
 * Implemented a properly working ratelimiter
 * Added :func:`on_autopost_error`
 * All autopost events now follow ``on_autopost_x`` naming format, e.g. :func:`on_autopost_error`, :func:`on_autopost_success`
@@ -78,7 +87,7 @@ v1.0.0
 v0.4.0
 ======
 
-* :meth:`DBLClient.post_guild_count` now supports a custom ``guild_count`` argument, which accepts either an integer or list of integers
+* :meth:`~.DBLClient.post_guild_count` now supports a custom ``guild_count`` argument, which accepts either an integer or list of integers
 * Reworked how shard info is posted
 * Removed ``InvalidArgument`` and ``ConnectionClosed`` exceptions
 * Added ``ServerError`` exception
@@ -87,12 +96,12 @@ v0.3.3
 ======
 
 * Internal changes regarding support of Top.gg migration
-* Fixed errors raised when using :meth:`DBLClient.close` without built-in webhook
+* Fixed errors raised when using :meth:`~.DBLClient.close` without built-in webhook
 
 v0.3.2
 ======
 
-* ``Client`` class has been renamed to ``DBLClient``
+* ``Client`` class has been renamed to :class:`~.DBLClient`
 
 v0.3.1
 ======
@@ -104,7 +113,7 @@ v0.3.1
 v0.3.0
 ======
 
-* :class:`DBLClient` now has ``autopost`` kwarg that will post server count automatically every 30 minutes
+* :class:`~.DBLClient` now has ``autopost`` kwarg that will post server count automatically every 30 minutes
 * Fixed code 403 errors
 * Added ``on_dbl_vote``, an event that is called when you test your webhook
 * Added ``on_dbl_test``, an event that is called when someone tests your webhook
@@ -114,7 +123,7 @@ v0.2.1
 
 * Added webhook
 * Removed support for discord.py versions lower than 1.0.0
-* Made :meth:`DBLClient.get_weekend_status` return a boolean value
+* Made :meth:`~.DBLClient.get_weekend_status` return a boolean value
 * Added webhook example in README
 * Removed ``post_server_count`` and ``get_server_count``
 
@@ -129,9 +138,9 @@ v0.2.0
 
 * Made ``get_server_count`` an alias for ``get_guild_count``
 
-* Added :meth:`DBLClient.get_weekend_status`
-* Removed all parameters from :meth:`DBLClient.get_upvote_info`
-* Added limit to :meth:`DBLClient.get_bots`
+* Added :meth:`~.DBLClient.get_weekend_status`
+* Removed all parameters from :meth:`~.DBLClient.get_upvote_info`
+* Added limit to :meth:`~.DBLClient.get_bots`
 * Fixed example in README
 
 v0.1.6

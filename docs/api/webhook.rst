@@ -1,6 +1,6 @@
-#####################
-Webhook API Reference
-#####################
+#################
+Webhook reference
+#################
 
 .. automodule:: topgg.webhook
     :members:

@@ -31,6 +31,7 @@ import topgg
 
 _LOGGER = logging.getLogger("callbacks.webhook")
 
+
 # this can be async too!
 @topgg.endpoint("/dblwebhook", topgg.WebhookType.BOT, "youshallnotpass")
 async def endpoint(

@@ -36,7 +36,7 @@ def data(type_: t.Type[T]) -> T:
     Represents the injected data. This should be set as the parameter's default value.
 
     Args:
-        `type_` (:obj:`type` [ :obj:`T` ])
+        `type_` (:obj:`type` [ :obj:`T`])
             The type of the injected data.
 
     Returns:
@@ -51,6 +51,7 @@ def data(type_: t.Type[T]) -> T:
             client = Client(...)
             dblclient = topgg.DBLClient(TOKEN).set_data(client)
             autopost: topgg.AutoPoster = dblclient.autopost()
+
 
             @autopost.stats()
             def get_stats(client: Client = topgg.data(Client)):
@@ -79,20 +80,18 @@ class DataContainerMixin:
     def __init__(self) -> None:
         self._data: t.Dict[t.Type, t.Any] = {type(self): self}
 
-    def set_data(
-        self: DataContainerT, data_: t.Any, *, override: bool = False
-    ) -> DataContainerT:
+    def set_data(self: DataContainerT, data_: t.Any, *, override: bool = False) -> DataContainerT:
         """
         Sets data to be available in your functions.
 
         Args:
-            `data_` (:obj:`typing.Any`)
+            `data_` (Any)
                 The data to be injected.
             override (:obj:`bool`)
                 Whether or not to override another instance that already exists.
 
         Raises:
-            :obj:`~.errors.TopGGException`
+            :exc:`~.errors.TopGGException`
                 If override is False and another instance of the same type exists.
         """
         type_ = type(data_)
@@ -105,20 +104,16 @@ class DataContainerMixin:
         return self
 
     @t.overload
-    def get_data(self, type_: t.Type[T]) -> t.Optional[T]:
-        ...
+    def get_data(self, type_: t.Type[T]) -> t.Optional[T]: ...
 
     @t.overload
-    def get_data(self, type_: t.Type[T], default: t.Any = None) -> t.Any:
-        ...
+    def get_data(self, type_: t.Type[T], default: t.Any = None) -> t.Any: ...
 
     def get_data(self, type_: t.Any, default: t.Any = None) -> t.Any:
         """Gets the injected data."""
         return self._data.get(type_, default)
 
-    async def _invoke_callback(
-        self, callback: t.Callable[..., T], *args: t.Any, **kwargs: t.Any
-    ) -> T:
+    async def _invoke_callback(self, callback: t.Callable[..., T], *args: t.Any, **kwargs: t.Any) -> T:
         parameters: t.Mapping[str, inspect.Parameter]
         try:
             parameters = inspect.signature(callback).parameters
@@ -128,8 +123,7 @@ class DataContainerMixin:
         signatures: t.Dict[str, Data] = {
             k: v.default
             for k, v in parameters.items()
-            if v.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
-            and isinstance(v.default, Data)
+            if v.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD and isinstance(v.default, Data)
         }
 
         for k, v in signatures.items():

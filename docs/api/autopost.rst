@@ -1,6 +1,6 @@
-#######################
-Auto-post API Reference
-#######################
+##################
+Autopost reference
+##################
 
 .. automodule:: topgg.autopost
     :members:

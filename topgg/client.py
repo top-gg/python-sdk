@@ -3,6 +3,7 @@
 # The MIT License (MIT)
 
 # Copyright (c) 2021 Assanali Mukhanov
+# Copyright (c) 2024 null8626
 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -24,7 +25,11 @@
 
 __all__ = ["DBLClient"]
 
+import base64
+import json
+import re
 import typing as t
+import warnings
 
 import aiohttp
 
@@ -45,28 +50,33 @@ class DBLClient(DataContainerMixin):
         token (:obj:`str`): Your bot's Top.gg API Token.
 
     Keyword Args:
-        default_bot_id (:obj:`typing.Optional` [ :obj:`int` ])
-            The default bot_id. You can override this by passing it when calling a method.
         session (:class:`aiohttp.ClientSession`)
             An `aiohttp session`_ to use for requests to the API.
         **kwargs:
             Arbitrary kwargs to be passed to :class:`aiohttp.ClientSession` if session was not provided.
     """
 
-    __slots__ = ("http", "default_bot_id", "_token", "_is_closed", "_autopost")
+    __slots__ = ("http", "bot_id", "_token", "_is_closed", "_autopost")
     http: HTTPClient
 
     def __init__(
         self,
         token: str,
         *,
-        default_bot_id: t.Optional[int] = None,
         session: t.Optional[aiohttp.ClientSession] = None,
         **kwargs: t.Any,
     ) -> None:
         super().__init__()
         self._token = token
-        self.default_bot_id = default_bot_id
+
+        try:
+            encoded_json = re.sub(r"[^a-zA-Z0-9\+\/]+", "", token.split(".")[1])
+            encoded_json += "=" * (4 - (len(encoded_json) % 4))
+
+            self.bot_id = int(json.loads(base64.b64decode(encoded_json))["id"])
+        except:
+            raise errors.ClientException("invalid token.")
+
         self._is_closed = False
         if session is not None:
             self.http = HTTPClient(token, session=session)
@@ -83,13 +93,6 @@ class DBLClient(DataContainerMixin):
         if not hasattr(self, "http"):
             self.http = HTTPClient(self._token, session=None)
 
-    def _validate_and_get_bot_id(self, bot_id: t.Optional[int]) -> int:
-        bot_id = bot_id or self.default_bot_id
-        if bot_id is None:
-            raise errors.ClientException("bot_id or default_bot_id is unset.")
-
-        return bot_id
-
     async def get_weekend_status(self) -> bool:
         """Gets weekend status from Top.gg.
 
@@ -97,7 +100,7 @@ class DBLClient(DataContainerMixin):
             :obj:`bool`: The boolean value of weekend status.
 
         Raises:
-            :obj:`~.errors.ClientStateException`
+            :exc:`~.errors.ClientStateException`
                 If the client has been closed.
         """
         await self._ensure_session()
@@ -105,8 +108,7 @@ class DBLClient(DataContainerMixin):
         return data["is_weekend"]
 
     @t.overload
-    async def post_guild_count(self, stats: types.StatsWrapper) -> None:
-        ...
+    async def post_guild_count(self, stats: types.StatsWrapper) -> None: ...
 
     @t.overload
     async def post_guild_count(
@@ -115,8 +117,7 @@ class DBLClient(DataContainerMixin):
         guild_count: t.Union[int, t.List[int]],
         shard_count: t.Optional[int] = None,
         shard_id: t.Optional[int] = None,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     async def post_guild_count(
         self,
@@ -138,18 +139,18 @@ class DBLClient(DataContainerMixin):
                 An instance of StatsWrapper containing guild_count, shard_count, and shard_id.
 
         Keyword Arguments:
-            guild_count (:obj:`typing.Optional` [:obj:`typing.Union` [ :obj:`int`, :obj:`list` [ :obj:`int` ]]])
+            guild_count (Optional[Union[:obj:`int`, List[:obj:`int`]]])
                 Number of guilds the bot is in. Applies the number to a shard instead if shards are specified.
                 If not specified, length of provided client's property `.guilds` will be posted.
-            shard_count (:obj:`.typing.Optional` [ :obj:`int` ])
+            shard_count (Optional[:obj:`int`])
                 The total number of shards.
-            shard_id (:obj:`.typing.Optional` [ :obj:`int` ])
+            shard_id (Optional[:obj:`int`])
                 The index of the current shard. Top.gg uses `0 based indexing`_ for shards.
 
         Raises:
             TypeError
                 If no argument is provided.
-            :obj:`~.errors.ClientStateException`
+            :exc:`~.errors.ClientStateException`
                 If the client has been closed.
         """
         if stats:
@@ -161,28 +162,19 @@ class DBLClient(DataContainerMixin):
         await self._ensure_session()
         await self.http.post_guild_count(guild_count, shard_count, shard_id)
 
-    async def get_guild_count(
-        self, bot_id: t.Optional[int] = None
-    ) -> types.BotStatsData:
-        """Gets a bot's guild count and shard info from Top.gg.
-
-        Args:
-            bot_id (int)
-                ID of the bot you want to look up. Defaults to the provided Client object.
+    async def get_guild_count(self) -> types.BotStatsData:
+        """Gets this bot's guild count and shard info from Top.gg.
 
         Returns:
             :obj:`~.types.BotStatsData`:
                 The guild count and shards of a bot on Top.gg.
 
         Raises:
-            :obj:`~.errors.ClientException`
-                If neither bot_id or default_bot_id was set.
-            :obj:`~.errors.ClientStateException`
+            :exc:`~.errors.ClientStateException`
                 If the client has been closed.
         """
-        bot_id = self._validate_and_get_bot_id(bot_id)
         await self._ensure_session()
-        response = await self.http.get_guild_count(bot_id)
+        response = await self.http.get_guild_count(self.bot_id)
         return types.BotStatsData(**response)
 
     async def get_bot_votes(self) -> t.List[types.BriefUserData]:
@@ -192,21 +184,15 @@ class DBLClient(DataContainerMixin):
             This API endpoint is only available to the bot's owner.
 
         Returns:
-            :obj:`list` [ :obj:`~.types.BriefUserData` ]:
+            List[:obj:`~.types.BriefUserData`]:
                 Users who voted for your bot.
 
         Raises:
-            :obj:`~.errors.ClientException`
-                If default_bot_id isn't provided when constructing the client.
-            :obj:`~.errors.ClientStateException`
+            :exc:`~.errors.ClientStateException`
                 If the client has been closed.
         """
-        if not self.default_bot_id:
-            raise errors.ClientException(
-                "you must set default_bot_id when constructing the client."
-            )
         await self._ensure_session()
-        response = await self.http.get_bot_votes(self.default_bot_id)
+        response = await self.http.get_bot_votes(self.bot_id)
         return [types.BriefUserData(**user) for user in response]
 
     async def get_bot_info(self, bot_id: t.Optional[int] = None) -> types.BotData:
@@ -216,7 +202,7 @@ class DBLClient(DataContainerMixin):
 
         Args:
             bot_id (int)
-                ID of the bot to look up. Defaults to the provided Client object.
+                ID of the bot to look up. Defaults to this bot's ID.
 
         Returns:
             :obj:`~.types.BotData`:
@@ -224,14 +210,11 @@ class DBLClient(DataContainerMixin):
                 `here <https://docs.top.gg/api/bot/#bot-structure>`_.
 
         Raises:
-            :obj:`~.errors.ClientException`
-                If neither bot_id or default_bot_id was set.
-            :obj:`~.errors.ClientStateException`
+            :exc:`~.errors.ClientStateException`
                 If the client has been closed.
         """
-        bot_id = self._validate_and_get_bot_id(bot_id)
         await self._ensure_session()
-        response = await self.http.get_bot_info(bot_id)
+        response = await self.http.get_bot_info(bot_id or self.bot_id)
         return types.BotData(**response)
 
     async def get_bots(
@@ -242,38 +225,19 @@ class DBLClient(DataContainerMixin):
         search: t.Optional[t.Dict[str, t.Any]] = None,
         fields: t.Optional[t.List[str]] = None,
     ) -> types.DataDict[str, t.Any]:
-        """This function is a coroutine.
-
-        Gets information about listed bots on Top.gg.
-
-        Args:
-            limit (int)
-                The number of results to look up. Defaults to 50. Max 500 allowed.
-            offset (int)
-                The amount of bots to skip. Defaults to 0.
-            sort (str)
-                The field to sort by. Prefix with ``-`` to reverse the order.
-            search (:obj:`dict` [ :obj:`str`, :obj:`typing.Any` ])
-                The search data.
-            fields (:obj:`list` [ :obj:`str` ])
-                Fields to output.
-
-        Returns:
-            :obj:`~.types.DataDict`:
-                Info on bots that match the search query on Top.gg.
-
-        Raises:
-            :obj:`~.errors.ClientStateException`
-                If the client has been closed.
         """
+        Warning:
+            This function is deprecated.
+        """
+
+        warnings.warn("get_bots is now deprecated.", DeprecationWarning)
+
         sort = sort or ""
         search = search or {}
         fields = fields or []
         await self._ensure_session()
         response = await self.http.get_bots(limit, offset, sort, search, fields)
-        response["results"] = [
-            types.BotData(**bot_data) for bot_data in response["results"]
-        ]
+        response["results"] = [types.BotData(**bot_data) for bot_data in response["results"]]
         return types.DataDict(**response)
 
     async def get_user_info(self, user_id: int) -> types.UserData:
@@ -290,7 +254,7 @@ class DBLClient(DataContainerMixin):
                 Information about a Top.gg user.
 
         Raises:
-            :obj:`~.errors.ClientStateException`
+            :exc:`~.errors.ClientStateException`
                 If the client has been closed.
         """
         await self._ensure_session()
@@ -308,18 +272,11 @@ class DBLClient(DataContainerMixin):
             :obj:`bool`: Info about the user's vote.
 
         Raises:
-            :obj:`~.errors.ClientException`
-                If default_bot_id isn't provided when constructing the client.
-            :obj:`~.errors.ClientStateException`
+            :exc:`~.errors.ClientStateException`
                 If the client has been closed.
         """
-        if not self.default_bot_id:
-            raise errors.ClientException(
-                "you must set default_bot_id when constructing the client."
-            )
-
         await self._ensure_session()
-        data = await self.http.get_user_vote(self.default_bot_id, user_id)
+        data = await self.http.get_user_vote(self.bot_id, user_id)
         return bool(data["voted"])
 
     def generate_widget(self, *, options: types.WidgetOptions) -> str:
@@ -334,28 +291,22 @@ class DBLClient(DataContainerMixin):
             str: Generated widget URL.
 
         Raises:
-            :obj:`~.errors.ClientException`
-                If bot_id or default_bot_id is unset.
             TypeError:
                 If options passed is not of type WidgetOptions.
         """
         if not isinstance(options, types.WidgetOptions):
-            raise TypeError(
-                "options argument passed to generate_widget must be of type WidgetOptions"
-            )
+            raise TypeError("options argument passed to generate_widget must be of type WidgetOptions")
 
-        bot_id = options.id or self.default_bot_id
-        if bot_id is None:
-            raise errors.ClientException("bot_id or default_bot_id is unset.")
-
+        bot_id = options.id or self.bot_id
         widget_query = f"noavatar={str(options.noavatar).lower()}"
+
         for key, value in options.colors.items():
             widget_query += f"&{key.lower()}{'' if key.lower().endswith('color') else 'color'}={value:x}"
+
         widget_format = options.format
         widget_type = f"/{options.type}" if options.type else ""
 
-        url = f"""https://top.gg/api/widget{widget_type}/{bot_id}.{widget_format}?{widget_query}"""
-        return url
+        return f"https://top.gg/api/widget{widget_type}/{bot_id}.{widget_format}?{widget_query}"
 
     async def close(self) -> None:
         """Closes all connections."""

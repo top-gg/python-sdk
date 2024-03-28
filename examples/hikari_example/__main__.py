@@ -1,6 +1,7 @@
 # The MIT License (MIT)
 
 # Copyright (c) 2021 Norizon
+# Copyright (c) 2024 null8626
 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -40,7 +41,6 @@ autoposter: topgg.AutoPoster = (
 async def on_started(event: hikari.StartedEvent):
     me: hikari.OwnUser = event.app.get_me()
     assert me is not None
-    dblclient.default_bot_id = me.id
 
     # since StartedEvent is a lifetime event
     # this event will only get dispatched once

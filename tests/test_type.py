@@ -143,12 +143,7 @@ def test_widget_options_fields(widget_options: types.WidgetOptions) -> None:
     for attr in widget_options:
         if "id" in attr.lower():
             assert isinstance(widget_options[attr], int) or widget_options[attr] is None
-        assert (
-            widget_options.get(attr)
-            == widget_options[attr]
-            == widget_options[attr]
-            == getattr(widget_options, attr)
-        )
+        assert widget_options.get(attr) == widget_options[attr] == widget_options[attr] == getattr(widget_options, attr)
 
 
 def test_vote_data_fields(vote_data: types.VoteDataDict) -> None:
@@ -165,11 +160,7 @@ def test_bot_vote_data_fields(bot_vote_data: types.BotVoteData) -> None:
 
     assert isinstance(bot_vote_data["bot"], int)
     for attr in bot_vote_data:
-        assert (
-            getattr(bot_vote_data, attr)
-            == bot_vote_data.get(attr)
-            == bot_vote_data[attr]
-        )
+        assert getattr(bot_vote_data, attr) == bot_vote_data.get(attr) == bot_vote_data[attr]
 
 
 def test_server_vote_data_fields(server_vote_data: types.BotVoteData) -> None:
@@ -178,11 +169,7 @@ def test_server_vote_data_fields(server_vote_data: types.BotVoteData) -> None:
 
     assert isinstance(server_vote_data["guild"], int)
     for attr in server_vote_data:
-        assert (
-            getattr(server_vote_data, attr)
-            == server_vote_data.get(attr)
-            == server_vote_data[attr]
-        )
+        assert getattr(server_vote_data, attr) == server_vote_data.get(attr) == server_vote_data[attr]
 
 
 def test_bot_stats_data_attrs(bot_stats_data: types.BotStatsData) -> None:

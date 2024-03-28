@@ -5,9 +5,12 @@ import pytest
 from aiohttp import ClientSession
 from pytest_mock import MockerFixture
 
-from topgg import DBLClient, StatsWrapper
+from topgg import DBLClient
 from topgg.autopost import AutoPoster
 from topgg.errors import ServerError, TopGGException, Unauthorized
+
+
+MOCK_TOKEN = "amogus.eyJpZCI6IjEwMjY1MjU1NjgzNDQyNjQ3MjQiLCJib3QiOnRydWUsImlhdCI6MTY5OTk4NDYyM30.amogus"
 
 
 @pytest.fixture
@@ -17,23 +20,19 @@ def session() -> ClientSession:
 
 @pytest.fixture
 def autopost(session: ClientSession) -> AutoPoster:
-    return AutoPoster(DBLClient("", session=session))
+    return AutoPoster(DBLClient(MOCK_TOKEN, session=session))
 
 
 @pytest.mark.asyncio
-async def test_AutoPoster_breaks_autopost_loop_on_401(
-    mocker: MockerFixture, session: ClientSession
-) -> None:
+async def test_AutoPoster_breaks_autopost_loop_on_401(mocker: MockerFixture, session: ClientSession) -> None:
     response = mock.Mock("reason, status")
     response.reason = "Unauthorized"
     response.status = 401
 
-    mocker.patch(
-        "topgg.DBLClient.post_guild_count", side_effect=Unauthorized(response, {})
-    )
+    mocker.patch("topgg.DBLClient.post_guild_count", side_effect=Unauthorized(response, {}))
 
     callback = mock.Mock()
-    autopost = DBLClient("", session=session).autopost().stats(callback)
+    autopost = DBLClient(MOCK_TOKEN, session=session).autopost().stats(callback)
     assert isinstance(autopost, AutoPoster)
     assert not isinstance(autopost.stats()(callback), AutoPoster)
 
@@ -46,9 +45,7 @@ async def test_AutoPoster_breaks_autopost_loop_on_401(
 
 @pytest.mark.asyncio
 async def test_AutoPoster_raises_missing_stats(autopost: AutoPoster) -> None:
-    with pytest.raises(
-        TopGGException, match="you must provide a callback that returns the stats."
-    ):
+    with pytest.raises(TopGGException, match="you must provide a callback that returns the stats."):
         await autopost.start()
 
 
@@ -66,9 +63,7 @@ async def test_AutoPoster_interval_too_short(autopost: AutoPoster) -> None:
 
 
 @pytest.mark.asyncio
-async def test_AutoPoster_error_callback(
-    mocker: MockerFixture, autopost: AutoPoster
-) -> None:
+async def test_AutoPoster_error_callback(mocker: MockerFixture, autopost: AutoPoster) -> None:
     error_callback = mock.Mock()
     response = mock.Mock("reason, status")
     response.reason = "Internal Server Error"

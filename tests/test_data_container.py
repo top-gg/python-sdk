@@ -13,20 +13,13 @@ def data_container() -> DataContainerMixin:
     return dc
 
 
-async def _async_callback(
-    text: str = data(str), number: int = data(int), mapping: dict = data(dict)
-):
-    ...
+async def _async_callback(text: str = data(str), number: int = data(int), mapping: dict = data(dict)): ...
 
 
-def _sync_callback(
-    text: str = data(str), number: int = data(int), mapping: dict = data(dict)
-):
-    ...
+def _sync_callback(text: str = data(str), number: int = data(int), mapping: dict = data(dict)): ...
 
 
-def _invalid_callback(number: float = data(float)):
-    ...
+def _invalid_callback(number: float = data(float)): ...
 
 
 @pytest.mark.asyncio
@@ -42,8 +35,7 @@ async def test_data_container_invoke_sync_callback(data_container: DataContainer
 def test_data_container_raises_data_already_exists(data_container: DataContainerMixin):
     with pytest.raises(
         TopGGException,
-        match="<class 'str'> already exists. If you wish to override it, "
-        "pass True into the override parameter.",
+        match="<class 'str'> already exists. If you wish to override it, " "pass True into the override parameter.",
     ):
         data_container.set_data("TEST")
 

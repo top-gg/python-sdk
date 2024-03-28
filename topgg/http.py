@@ -3,6 +3,7 @@
 # The MIT License (MIT)
 
 # Copyright (c) 2021 Assanali Mukhanov
+# Copyright (c) 2024 null8626
 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -28,6 +29,7 @@ import asyncio
 import json
 import logging
 import sys
+import warnings
 from datetime import datetime
 from typing import Any, Coroutine, Dict, Iterable, List, Optional, Sequence, Union, cast
 
@@ -76,27 +78,17 @@ class HTTPClient:
         self.token = token
         self._own_session = session is None
         self.session: aiohttp.ClientSession = session or aiohttp.ClientSession(**kwargs)
-        self.global_rate_limiter = AsyncRateLimiter(
-            max_calls=99, period=1, callback=_rate_limit_handler
-        )
-        self.bot_rate_limiter = AsyncRateLimiter(
-            max_calls=59, period=60, callback=_rate_limit_handler
-        )
-        self.rate_limiters = AsyncRateLimiterManager(
-            [self.global_rate_limiter, self.bot_rate_limiter]
-        )
+        self.global_rate_limiter = AsyncRateLimiter(max_calls=99, period=1, callback=_rate_limit_handler)
+        self.bot_rate_limiter = AsyncRateLimiter(max_calls=59, period=60, callback=_rate_limit_handler)
+        self.rate_limiters = AsyncRateLimiterManager([self.global_rate_limiter, self.bot_rate_limiter])
         self.user_agent = (
-            f"topggpy (https://github.com/top-gg/python-sdk {__version__}) Python/"
+            f"topggpy (https://github.com/top-gg-community/python-sdk {__version__}) Python/"
             f"{sys.version_info[0]}.{sys.version_info[1]} aiohttp/{aiohttp.__version__}"
         )
 
     async def request(self, method: str, endpoint: str, **kwargs: Any) -> dict:
         """Handles requests to the API."""
-        rate_limiters = (
-            self.rate_limiters
-            if endpoint.startswith("/bots")
-            else self.global_rate_limiter
-        )
+        rate_limiters = self.rate_limiters if endpoint.startswith("/bots") else self.global_rate_limiter
         url = f"{self.BASE}{endpoint}"
 
         if not self.token:
@@ -210,7 +202,13 @@ class HTTPClient:
         search: Dict[str, str],
         fields: Sequence[str],
     ) -> Coroutine[Any, Any, dict]:
-        """Gets an object of bots on Top.gg."""
+        """
+        Warning:
+            This function is deprecated.
+        """
+
+        warnings.warn("get_bots is now deprecated.", DeprecationWarning)
+
         limit = min(limit, 500)
         fields = ", ".join(fields)
         search = " ".join([f"{field}: {value}" for field, value in search.items()])
@@ -240,9 +238,7 @@ async def _rate_limit_handler(until: float) -> None:
     """Handles the displayed message when we are ratelimited."""
     duration = round(until - datetime.utcnow().timestamp())
     mins = duration / 60
-    fmt = (
-        "We have exhausted a ratelimit quota. Retrying in %.2f seconds (%.3f minutes)."
-    )
+    fmt = "We have exhausted a ratelimit quota. Retrying in %.2f seconds (%.3f minutes)."
     _LOGGER.warning(fmt, duration, mins)
 
 

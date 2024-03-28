@@ -1,6 +1,7 @@
 # The MIT License (MIT)
 
 # Copyright (c) 2021 Norizon
+# Copyright (c) 2024 null8626
 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
@@ -39,7 +40,6 @@ autoposter: topgg.AutoPoster = (
 @client.event
 async def on_ready():
     assert client.user is not None
-    dblclient.default_bot_id = client.user.id
 
     # if it's ready, then the event loop's run,
     # hence it's safe starting the autopost here

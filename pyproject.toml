@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools"]
+
+[project]
+name = "topggpy"
+version = "2.0.1"
+description = "A simple API wrapper for Top.gg written in Python."
+readme = "README.rst"
+license = { text = "MIT" }
+authors = [{ name = "null8626" }, { name = "Top.gg" }]
+keywords = ["discord", "bot", "topgg", "top.gg"]
+dependencies = ["aiohttp>=3.9.0"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "License :: OSI Approved :: MIT License",
+  "Intended Audience :: Developers",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Internet",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Utilities"
+]
+requires-python = ">=3.8"
+
+[project.urls]
+Documentation = "https://topggpy.readthedocs.io/en/latest/"
+"Release notes" = "https://topggpy.readthedocs.io/en/latest/whats_new.html"
+Repository = "https://github.com/top-gg-community/python-sdk"
+"Support server" = "https://discord.gg/dbl"

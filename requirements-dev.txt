@@ -1,6 +1,5 @@
-# Formatting
-git+https://github.com/timothycrosley/isort
-git+https://github.com/psf/black
+# Formatting and Linting
+ruff
 
 # Unit Testing
 mock
@@ -8,6 +7,3 @@ pytest
 pytest-asyncio
 pytest-mock
 pytest-cov
-
-# Linting
-flake8

@@ -102,9 +102,4 @@ class AsyncRateLimiterManager:
         exc_val: BaseException,
         exc_tb: TracebackType,
     ) -> None:
-        await asyncio.gather(
-            *[
-                manager.__aexit__(exc_type, exc_val, exc_tb)
-                for manager in self.rate_limiters
-            ]
-        )
+        await asyncio.gather(*[manager.__aexit__(exc_type, exc_val, exc_tb) for manager in self.rate_limiters])

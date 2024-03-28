@@ -29,6 +29,7 @@ import topgg
 
 _LOGGER = logging.getLogger("callbacks.autopost")
 
+
 # these functions can be async too!
 def on_autopost_success(
     # uncomment this if you want to get access to app
@@ -56,6 +57,4 @@ def on_autopost_error(
 
 
 def stats(app: hikari.GatewayBot = topgg.data(hikari.GatewayBot)):
-    return topgg.StatsWrapper(
-        guild_count=len(app.cache.get_guilds_view()), shard_count=app.shard_count
-    )
+    return topgg.StatsWrapper(guild_count=len(app.cache.get_guilds_view()), shard_count=app.shard_count)

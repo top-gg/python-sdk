@@ -1,6 +1,6 @@
-####################
-Client API Reference
-####################
+################
+Client reference
+################
 
 .. automodule:: topgg.client
     :members:
